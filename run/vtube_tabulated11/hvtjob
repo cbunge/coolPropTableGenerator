@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -N vtube_tabulated10
+#PBS -l walltime=00:04:00:00
+#PBS -l procs=48
+#PBS -A vortextube
+#PBS -q short
+module purge
+module load impi-intel
+module load openmpi-gcc/1.10.0-5.2.0
+module use /nopt/nrel/apps/modules/candidate/modulefiles/
+module load openfoam/4.1/openmpi-gcc
+. /nopt/nrel/apps/openfoam/dist/OpenFOAM-4.x-version-4.1-gcc-ompi/etc/bashrc
+. ./run.sh

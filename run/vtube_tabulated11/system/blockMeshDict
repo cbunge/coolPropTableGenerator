@@ -1,0 +1,241 @@
+//--------------------------------*- C++ -*----------------------------------
+// blockMesh :  Block mesh description file
+//
+// adapted from:
+// http://www.cfd-online.com/Forums/openfoam-meshing-blockmesh/61796-help-could-anyone-post-simple-cylinder-mesh.html
+//
+// JJS, 1/8/16
+//
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+FoamFile
+{
+  version  2.0;
+  format   ascii;
+  class dictionary;
+  object blockMeshDict;
+}
+// ************************************
+
+   convertToMeters 0.001;
+
+      // outer cylinder diameter
+     // outer cylinder length
+      //  inner cylinder diameter
+      
+    //Width of middle square section
+   
+    //how many cells in the square section
+    //how many cells from square section to perimeter
+    // how many cells from top to bottom
+
+   vertices
+   (
+    //Left surface
+    //==========
+
+    //square
+    (0.0  5.3025  5.3025) // Vertex one_l = 0 
+    (0.0 -5.3025  5.3025) // Vertex two_l = 1 
+    (0.0 -5.3025 -5.3025) // Vertex three_l = 2 
+    (0.0  5.3025 -5.3025) // Vertex four_l = 3 
+
+    //inner circle
+    (0.0  7.49886742121318  7.49886740775349) // Vertex five_l = 4 
+    (0.0 -7.49886742121318  7.49886740775349) // Vertex six_l = 5 
+    (0.0 -7.49886742121318 -7.49886740775349) // Vertex seven_l = 6 
+    (0.0  7.49886742121318 -7.49886740775349) // Vertex eight_l = 7 
+
+    //outer circle
+    (0.0  10.6066017273171  10.6066017082793) // Vertex nine_l = 8 
+    (0.0 -10.6066017273171  10.6066017082793) // Vertex ten_l = 9 
+    (0.0 -10.6066017273171 -10.6066017082793) // Vertex eleven_l = 10 
+    (0.0  10.6066017273171 -10.6066017082793) // Vertex twelve_l = 11 
+   
+
+    //Right surface
+    //==========
+    
+    //square
+    (300.0  5.3025  5.3025) // Vertex one_r = 12 
+    (300.0 -5.3025  5.3025) // Vertex two_r = 13 
+    (300.0 -5.3025 -5.3025) // Vertex three_r = 14 
+    (300.0  5.3025 -5.3025) // Vertex four_r = 15 
+
+    //inner circle
+    (300.0  7.49886742121318  7.49886740775349) // Vertex five_r = 16 
+    (300.0 -7.49886742121318  7.49886740775349) // Vertex six_r = 17 
+    (300.0 -7.49886742121318 -7.49886740775349) // Vertex seven_r = 18 
+    (300.0  7.49886742121318 -7.49886740775349) // Vertex eight_r = 19 
+
+    //outer circle
+    (300.0  10.6066017273171  10.6066017082793) // Vertex nine_r = 20 
+    (300.0 -10.6066017273171  10.6066017082793) // Vertex ten_r = 21 
+    (300.0 -10.6066017273171 -10.6066017082793) // Vertex eleven_r = 22 
+    (300.0  10.6066017273171 -10.6066017082793) // Vertex twelve_r = 23 
+
+   );				
+
+   blocks
+   (
+    //square block
+    //===========
+
+    hex (
+       0 1 2 3
+       12 13 14 15
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+
+    //inner circle
+    //===========
+
+    //slice1
+    hex (
+	4 5 1 0
+	16 17 13 12
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice2
+    hex (
+	5 6 2 1
+	17 18 14 13
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice3
+    hex (
+	6 7 3 2
+	18 19 15 14
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice4
+    hex (
+	7 4 0 3
+	19 16 12 15
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+   
+ 
+    //outer circle
+    //===========
+
+   //slice1
+    hex (
+	8 9 5 4
+	20 21 17 16
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice2
+    hex (
+	9 10 6 5
+	21 22 18 17
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice3
+    hex (
+	10 11 7 6
+	22 23 19 18
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+    
+    //slice4
+    hex (
+	11 8 4 7
+	23 20 16 19
+       )
+    (8 8 200)
+    simpleGrading (1 1 1)
+   );
+
+
+   //create the quarter circles
+   edges
+   (
+    arc 4 5       (0.0 0.0 10.605)
+    arc 5 6      (0.0 -10.605 0.0)
+    arc 6 7    (0.0 0.0 -10.605)
+    arc 7 4     (0.0 10.605 0.0)
+    
+    arc 8 9       (0.0 0.0 15)
+    arc 9 10     (0.0 -15 0.0)
+    arc 10 11  (0.0 0.0 -15)
+    arc 11 8    (0.0 15 0.0)
+
+    arc 16 17       (300.0 0.0 10.605)
+    arc 17 18      (300.0 -10.605 0.0)
+    arc 18 19    (300.0 0.0 -10.605)
+    arc 19 16     (300.0 10.605 0.0)
+    
+    arc 20 21       (300.0 0.0 15)
+    arc 21 22     (300.0 -15 0.0)
+    arc 22 23  (300.0 0.0 -15)
+    arc 23 20    (300.0 15 0.0)
+   );
+
+   patches
+   (
+    patch inlet
+    (
+	//outer circle patches
+	(8 9 5 4)
+	(9 10 6 5)
+	(10 11 7 6)
+	(11 8 4 7)
+    )
+
+    patch outlet
+    (
+       	//square patch - inlet
+	(0 1 2 3)
+
+	//outer circle patches - outlet
+	(20 21 17 16)
+	(21 22 18 17)
+	(22 23 19 18)
+	(23 20 16 19)
+
+    )
+
+    wall wallbdry
+    (
+
+        //tube walls
+	(8 9 21 20)
+	(9 10 22 21)
+	(10 11 23 22)
+	(11 8 20 23)
+
+	//square patch - outlet
+	(12 13 14 15)
+	
+	//inner circle patches - outlet
+	(16 17 13 12)
+	(17 18 14 13)
+	(18 19 15 14)
+	(19 16 12 15)
+
+	//inner circle patches - inlet region
+	(4 5 1 0)
+	(5 6 2 1)
+	(6 7 3 2)
+	(7 4 0 3)
+
+    )
+
+);
+
+mergePatchPairs
+(
+);
