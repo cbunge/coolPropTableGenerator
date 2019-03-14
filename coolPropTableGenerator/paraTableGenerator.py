@@ -21,14 +21,11 @@ fluid_thermo ='parahydrogen'
 #Fluid for transport model (thermal conductivity and viscosity)
 fluid_transport = 'hydrogen'
 
-#Universal gas constant, R [J/(mol K)]
-#R = CP.PropsSI("GAS_CONSTANT",fluid_thermo)
-
 #****************************************************************************************
 
 #Temperature limits
-T0 = 20 # - 19.3K is 0.03K above saturated conditions
-TMax = 90 #
+T0 = 20 #Temperature start (K)
+TMax = 90 #Temperature end (K)
 
 #Pressure limits
 p0 = 0.5e5 #Pa
@@ -50,6 +47,7 @@ H = []
 CpMCv = []
 E = []
 S = []
+c = []
 
 i = 0
 j = 0
@@ -70,6 +68,7 @@ while p<pMax:
     H.append([0])
     E.append([0])
     S.append([0])
+    c.append([0])
     rho[i][0] = rhoCur = CP.PropsSI('D','T',T,'P',p,fluid_thermo)
     CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo) 
     Cp[i][0] = CpCur
@@ -79,6 +78,7 @@ while p<pMax:
     H[i][0] =  CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo)
     E[i][0] =  CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo) 
     S[i][0] =  CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo)
+    c[i][0] =  CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo)
     TRange.append(T)
     while T<TMax:
         j += 1
@@ -94,6 +94,7 @@ while p<pMax:
         H[i].append(CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo))
         E[i].append(CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo))
         S[i].append(CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo))
+        c[i].append(CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo))
         TRange.append(T)
     i += 1
     ps.append([p]*len(TRange))    
@@ -108,8 +109,7 @@ muFile = open("mu","w")
 
 for i,p in enumerate(pRange):
     sList = ["\t" + str(mu[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
-    muFile.write("".join(sList))
-    muFile.write("")    
+    muFile.write("".join(sList))    
 muFile.write("")
 muFile.close()
 
@@ -120,7 +120,6 @@ for i,p in enumerate(pRange):
     rhoFile.write("")
     sList = ["\t" + str(rho[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     rhoFile.write("".join(sList))
-    rhoFile.write(" \n")    
 rhoFile.write("")
 rhoFile.close()
 
@@ -131,7 +130,6 @@ for i,p in enumerate(pRange):
     CpFile.write("")
     sList = ["\t" + str(Cp[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     CpFile.write("".join(sList))
-    CpFile.write(" \n")    
 CpFile.write("")
 CpFile.close()
 
@@ -142,7 +140,6 @@ for i,p in enumerate(pRange):
     kappaFile.write("")
     sList = ["\t" + str(kappa[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     kappaFile.write("".join(sList))
-    kappaFile.write(" \n")    
 kappaFile.write("")
 kappaFile.close()
 
@@ -153,7 +150,6 @@ for i,p in enumerate(pRange):
     CpMCvFile.write("")
     sList = ["\t" + str(CpMCv[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     CpMCvFile.write("".join(sList))
-    CpMCvFile.write(" \n")    
 CpMCvFile.write("")
 CpMCvFile.close()
 
@@ -164,7 +160,6 @@ for i,p in enumerate(pRange):
     HFile.write("")
     sList = ["\t" + str(H[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     HFile.write("".join(sList))
-    HFile.write(" \n")    
 HFile.write("")
 HFile.close()
 
@@ -175,7 +170,6 @@ for i,p in enumerate(pRange):
     EFile.write("")
     sList = ["\t" + str(E[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     EFile.write("".join(sList))
-    EFile.write(" \n")    
 EFile.write("")
 EFile.close()
 
@@ -186,9 +180,19 @@ for i,p in enumerate(pRange):
     SFile.write("")
     sList = ["\t" + str(S[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
     SFile.write("".join(sList))
-    SFile.write(" \n")    
 SFile.write("")
 SFile.close()
+
+cFile = open("c","w")
+cFile.write("\n")
+
+for i,p in enumerate(pRange):
+    cFile.write("")
+    sList = ["\t" + str(c[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
+    cFile.write("".join(sList))
+cFile.write("")
+cFile.close()
+
 
 
 #Previous dT method to save computational time:
