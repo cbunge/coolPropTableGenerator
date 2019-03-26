@@ -8,6 +8,7 @@ Adapted from @author: Luka Denies from TU Delft.
 Changelog:
 11/2017 - Integration of CoolProp
 06/2018 - Update to OpenFOAM-5.x (Mass-based thermodynamics (for example: cpMcv to CpMCv))
+03/2019 - Update to include parahydrogen properties from Refprop
 
 """
 
@@ -15,20 +16,20 @@ import CoolProp.CoolProp as CP
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Fluid for thermodynamic properties (rho, Cp, CpMcv, H)
+#Fluid for thermodynamic properties (rho, Cp, CpMcv, H, S, c, E, thermal conductivity)
 fluid_thermo ='parahydrogen'
 
-#Fluid for transport model (thermal conductivity and viscosity)
+#Fluid for transport model (viscosity)
 fluid_transport = 'hydrogen'
 
 #****************************************************************************************
 
 #Temperature limits
-T0 = 20 #Temperature start (K)
+T0 = 40 #Temperature start (K)
 TMax = 90 #Temperature end (K)
 
 #Pressure limits
-p0 = 0.5e5 #Pa
+p0 = 0.1e5 #Pa
 pMax = 5.5e5 #Pa
 
 #****************************************************************************************
@@ -73,7 +74,7 @@ while p<pMax:
     CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo) 
     Cp[i][0] = CpCur
     mu[i][0] = CP.PropsSI('V','D',rhoCur,'T',T,fluid_transport)
-    kappa[i][0] = CP.PropsSI('L','D',rhoCur,'T',T,fluid_transport) 
+    kappa[i][0] = CP.PropsSI('L','D',rhoCur,'T',T,'REFPROP::parahydrogen') 
     CpMCv[i][0] = CpCur-CP.PropsSI('O','D',rhoCur,'T',T,fluid_thermo) 
     H[i][0] =  CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo)
     E[i][0] =  CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo) 
@@ -89,7 +90,7 @@ while p<pMax:
         CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo)
         Cp[i].append(CpCur)
         mu[i].append(CP.PropsSI('V','D',rhoCur,'T',T,fluid_transport))
-        kappa[i].append(CP.PropsSI('L','D',rhoCur,'T',T,fluid_transport))
+        kappa[i].append(CP.PropsSI('L','D',rhoCur,'T',T,'REFPROP::parahydrogen'))
         CpMCv[i].append((CpCur-CP.PropsSI('O','D',rhoCur,'T',T,fluid_thermo)))
         H[i].append(CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo))
         E[i].append(CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo))
