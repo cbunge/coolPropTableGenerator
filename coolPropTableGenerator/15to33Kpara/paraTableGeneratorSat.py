@@ -8,24 +8,25 @@ Adapted from @author: Luka Denies from TU Delft.
 Changelog:
 11/2017 - Integration of CoolProp
 06/2018 - Update to OpenFOAM-5.x (Mass-based thermodynamics (for example: cpMcv to CpMCv))
-03/2019 - Update to include orthohydrogen extrapolated thermal conductivity
+03/2019 - Update to include parahydrogen properties from Refprop
+
 """
 
 import CoolProp.CoolProp as CP
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Fluid for thermodynamic properties (rho, Cp, CpMcv, H, E, S, c, thermal conductivity)
-fluid_thermo ='orthohydrogen'
+#Fluid for thermodynamic properties (rho, Cp, CpMcv, H, S, c, E, thermal conductivity)
+fluid_thermo ='parahydrogen'
 
 #Fluid for transport model (viscosity)
 fluid_transport = 'hydrogen'
 
 #****************************************************************************************
 
-#Temperature limits
-T0 = 40 #Temperature start (K)
-TMax = 90 #Temperature end (K)
+#Temperature limits (set within subcritical region for saturation tables)
+T0 = 15 #Temperature start (K)
+TMax = 32 #Temperature end (K)
 
 #Pressure limits
 p0 = 0.1e5 #Pa
@@ -48,7 +49,7 @@ CpMCv = []
 E = []
 S = []
 c = []
-satP = []
+pSat = []
 
 i = 0
 j = 0
@@ -70,34 +71,35 @@ while p<pMax:
     E.append([0])
     S.append([0])
     c.append([0])
+    pSat.append([0])
     rho[i][0] = rhoCur = CP.PropsSI('D','T',T,'P',p,fluid_thermo)
     CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo) 
     Cp[i][0] = CpCur
     mu[i][0] = CP.PropsSI('V','D',rhoCur,'T',T,fluid_transport)
-    kappa[i][0] = ((CP.PropsSI('L','D',rhoCur,'T',T,fluid_transport)-(0.25*CP.PropsSI('L','D', rhoCur,'T',T,'REFPROP::parahydrogen')))*(1.3333333))
+    kappa[i][0] = CP.PropsSI('L','D',rhoCur,'T',T,'REFPROP::parahydrogen') 
     CpMCv[i][0] = CpCur-CP.PropsSI('O','D',rhoCur,'T',T,fluid_thermo) 
     H[i][0] =  CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo)
     E[i][0] =  CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo) 
     S[i][0] =  CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo)
     c[i][0] =  CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo)
-    satP[i][0] =  CP.PropsSI('P','T',T,'Q',0,fluid_thermo)
+    pSat[i][0] = CP.PropsSI('P','T',T,'Q',0,fluid_thermo)
     TRange.append(T)
     while T<TMax:
         j += 1
-        dT = 10 # Tstep [K] **************************************************************
+        dT = 1 # Tstep [K] **************************************************************
         T += dT
         rhoCur = CP.PropsSI('D','T',T,'P',p,fluid_thermo)
         rho[i].append(rhoCur)
         CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo)
         Cp[i].append(CpCur)
         mu[i].append(CP.PropsSI('V','D',rhoCur,'T',T,fluid_transport))
-        kappa[i].append((CP.PropsSI('L','D',rhoCur,'T',T,fluid_transport)-(0.25*CP.PropsSI('L','D', rhoCur,'T',T,'REFPROP::parahydrogen')))*(1.333333))
+        kappa[i].append(CP.PropsSI('L','D',rhoCur,'T',T,'REFPROP::parahydrogen'))
         CpMCv[i].append((CpCur-CP.PropsSI('O','D',rhoCur,'T',T,fluid_thermo)))
         H[i].append(CP.PropsSI('H','D',rhoCur,'T',T,fluid_thermo))
         E[i].append(CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo))
-        S[i].append(CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo)) 
-        c[i].append(CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo)) 
-        satP[i].append(CP.PropsSI('P','T',T,'Q',0,fluid_themro))
+        S[i].append(CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo))
+        c[i].append(CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo))
+        pSat[i].append(CP.PropsSI('P','T',T,'Q',0,fluid_thermo))
         TRange.append(T)
     i += 1
     ps.append([p]*len(TRange))    
@@ -108,13 +110,19 @@ while p<pMax:
     Ts.append(TRange)
 print "Calculations done, now writing"
 
-muFile = open("mu","w")
-muFile.write("\n")
+pSatFile = open("pSat","w")
 
 for i,p in enumerate(pRange):
-    muFile.write("")
+    sList = ["\t" + str(pSat[i][j]) + " " + str(Ts[i][j]) + "\n" for j in range(len(Ts[i]))]
+    pSatFile.write("".join(sList))    
+pSatFile.write("")
+pSatFile.close()
+
+muFile = open("mu","w")
+
+for i,p in enumerate(pRange):
     sList = ["\t" + str(mu[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
-    muFile.write("".join(sList))
+    muFile.write("".join(sList))    
 muFile.write("")
 muFile.close()
 
@@ -184,7 +192,7 @@ SFile.write("\n")
 for i,p in enumerate(pRange):
     SFile.write("")
     sList = ["\t" + str(S[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
-    SFile.write("".join(sList))   
+    SFile.write("".join(sList))
 SFile.write("")
 SFile.close()
 
@@ -198,15 +206,6 @@ for i,p in enumerate(pRange):
 cFile.write("")
 cFile.close()
 
-satPFile = open("satP","w")
-satPFile.write("\n")
-
-for i,p in enumerate(pRange):
-    satPFile.write("")
-    satPList = ["\t" + str(satP[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
-    satPFile.write("".join(sList))
-satPFile.write("")
-satPFile.close()
 
 
 #Previous dT method to save computational time:

@@ -24,8 +24,8 @@ fluid_transport = 'hydrogen'
 #****************************************************************************************
 
 #Temperature limits
-T0 = 40 #Temperature start (K)
-TMax = 90 #Temperature end (K)
+T0 = 15 #Temperature start (K)
+TMax = 32 #Temperature end (K)
 
 #Pressure limits
 p0 = 0.1e5 #Pa
@@ -48,7 +48,7 @@ CpMCv = []
 E = []
 S = []
 c = []
-satP = []
+pSat = []
 
 i = 0
 j = 0
@@ -70,6 +70,7 @@ while p<pMax:
     E.append([0])
     S.append([0])
     c.append([0])
+    pSat.append([0])
     rho[i][0] = rhoCur = CP.PropsSI('D','T',T,'P',p,fluid_thermo)
     CpCur = CP.PropsSI('C','D',rhoCur,'T',T,fluid_thermo) 
     Cp[i][0] = CpCur
@@ -80,11 +81,11 @@ while p<pMax:
     E[i][0] =  CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo) 
     S[i][0] =  CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo)
     c[i][0] =  CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo)
-    satP[i][0] =  CP.PropsSI('P','T',T,'Q',0,fluid_thermo)
+    pSat[i][0] = CP.PropsSI('P','T',T,'Q',0,fluid_thermo)
     TRange.append(T)
     while T<TMax:
         j += 1
-        dT = 10 # Tstep [K] **************************************************************
+        dT = 1 # Tstep [K] **************************************************************
         T += dT
         rhoCur = CP.PropsSI('D','T',T,'P',p,fluid_thermo)
         rho[i].append(rhoCur)
@@ -97,7 +98,7 @@ while p<pMax:
         E[i].append(CP.PropsSI('U','D',rhoCur,'T',T,fluid_thermo))
         S[i].append(CP.PropsSI('S','D',rhoCur,'T',T,fluid_thermo)) 
         c[i].append(CP.PropsSI('A','D',rhoCur,'T',T,fluid_thermo)) 
-        satP[i].append(CP.PropsSI('P','T',T,'Q',0,fluid_themro))
+        pSat[i].append(CP.PropsSI('P','T',T,'Q',0,fluid_thermo))
         TRange.append(T)
     i += 1
     ps.append([p]*len(TRange))    
@@ -107,6 +108,14 @@ while p<pMax:
     print p
     Ts.append(TRange)
 print "Calculations done, now writing"
+
+pSatFile = open("pSat","w")
+
+for i,p in enumerate(pRange):
+    sList = ["\t" + str(pSat[i][j]) + " " + str(Ts[i][j]) + "\n" for j in range(len(Ts[i]))]
+    pSatFile.write("".join(sList))
+pSatFile.write("")
+pSatFile.close()
 
 muFile = open("mu","w")
 muFile.write("\n")
@@ -197,17 +206,6 @@ for i,p in enumerate(pRange):
     cFile.write("".join(sList))
 cFile.write("")
 cFile.close()
-
-satPFile = open("satP","w")
-satPFile.write("\n")
-
-for i,p in enumerate(pRange):
-    satPFile.write("")
-    satPList = ["\t" + str(satP[i][j]) + " " + str(Ts[i][j]) + " " +  str(p) + "\n" for j in range(len(Ts[i]))]
-    satPFile.write("".join(sList))
-satPFile.write("")
-satPFile.close()
-
 
 #Previous dT method to save computational time:
 #dT = drho/CP.PropsSI('d(D)/d(P)|T','D',rhoCur,'T',T,fluid_thermo)*CP.PropsSI('d(P)/d(T)|D','D',rhoCur,'T',T,fluid_thermo)
