@@ -16,6 +16,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Fluid for thermodynamic properties (rho, Cp, CpMcv, H, E, S, c, thermal conductivity)
+
+#Custom refernce state for orthohydrogen to capture enthalpy offset of orthohydrogen
+CP.set_reference_state('orthohydrogen',20.3800689304,35150.6373702,1417.12332,0.036828) 
 fluid_thermo ='orthohydrogen'
 
 #Fluid for transport model (viscosity)
