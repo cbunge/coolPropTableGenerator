@@ -29,8 +29,8 @@ T0 = 24 #Temperature start (K)
 TMax = 80 #Temperature end (K)
 
 #Pressure limits
-p0 = 1.371367e6 #Pa
-pMax = 1.38e6 #Pa (to do one pressure step)
+p0 = 1.371367e5 #Pa
+pMax = 1.38e5 #Pa (to do one pressure step)
 
 #****************************************************************************************
 
@@ -104,7 +104,7 @@ while p<pMax:
     i += 1
     ps.append([p]*len(TRange))    
     rhoPseudoCrit = CP.PropsSI('D','T',Tcrit,'P',p,fluid_thermo)
-    dp = 1e5 # Pstep [Pa] ****************************************************************
+    dp = 1e4 # Pstep [Pa] ****************************************************************
     p += dp
     print p
     Ts.append(TRange)
