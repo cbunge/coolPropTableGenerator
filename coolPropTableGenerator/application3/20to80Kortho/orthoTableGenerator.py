@@ -27,7 +27,7 @@ fluid_transport = 'hydrogen'
 #****************************************************************************************
 
 #Temperature limits
-T0 = 40 #Temperature start (K)
+T0 = 24.2 #Temperature start (K)
 TMax = 80 #Temperature end (K)
 
 #Pressure limits

@@ -25,7 +25,7 @@ fluid_transport = 'hydrogen'
 #****************************************************************************************
 
 #Temperature limits (set within subcritical region for saturation tables)
-T0 = 40 #Temperature start (K)
+T0 = 24.4 #Temperature start (K)
 TMax = 80 #Temperature end (K)
 
 #Pressure limits
